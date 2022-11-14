@@ -19,7 +19,7 @@ pipeline {
         stage('Build'){
             steps {
                 git branch: 'main', url: 'https://github.com/Rynobe/teszt.git'
-                sh 'python3 generate_ad.py' + ${params.PROJECT}
+                sh 'python3 generate_ad.py' + """${params.PROJECT}"""
             }
         }
         stage('Test') {
