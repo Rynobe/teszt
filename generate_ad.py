@@ -43,10 +43,10 @@ AppGroupNames = {
 }
 
 parser = argparse.ArgumentParser(description='AD object generation for onboarding script parameters.')
-#parser.add_argument('project_identifier', type=str, help='The unique identifier based on the current naming convention for the project to be onboarded.')
+parser.add_argument('project_identifier', type=str, help='The unique identifier based on the current naming convention for the project to be onboarded.')
 
 args = parser.parse_args()
-#project_name = args.project_identifier
+project_name = args.project_identifier
 AD_ENV['corp']['connection'] = ActiveDirectory(adusername,adpassword,AD_ENV['corp']['server'],AD_ENV['corp']['port'],AD_ENV['corp']['searchBases'])
 
 
@@ -71,7 +71,7 @@ def prepare_OUs_and_groups(forDomain, project_name, app):
         ActualGroupsAndMembers[forDomain][app].append(g)
     #logger.info(f'Finished creating the {app.value}-specific groups inside of the project OU (PR_{project_name})')
 
-prepare_OUs_and_groups("corp", "otp-cdo",Apps.Jenkins)
+prepare_OUs_and_groups("corp",project_name,Apps.Jenkins)
 
 """
 
