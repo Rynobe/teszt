@@ -127,12 +127,12 @@ def main():
     # prepare AD connections
     invalid_userfilter_groups = {}
     for domain in AD_ENV:
-        logger.debug(f'Validating connection to {domain.upper()} AD.')
+        logger.info(f'Validating connection to {domain.upper()} AD.')
         #username = os.getenv(AD_ENV[domain]["envUsername"])
         #pw = os.getenv(AD_ENV[domain]["envPassword"])
         AD_ENV['corp']['connection'] = ActiveDirectory(adusername,adpassword,AD_ENV['corp']['server'],AD_ENV['corp']['port'],AD_ENV['corp']['searchBases'], AD_ENV['corp']['extraFilterForUsers'], logger)
         #AD_ENVS[domain]['connection'] = ActiveDirectory(username, pw, AD_ENVS[domain]['host'], AD_ENVS[domain]['port'], AD_ENVS[domain]['SSL'], AD_ENVS[domain]['searchBases'], AD_ENVS[domain]['extraFilterForUsers'], logger)
-        logger.debug(f'Connection successful to {domain.upper()} AD.')
+        logger.info(f'Connection successful to {domain.upper()} AD.')
     
     # prepare and generate actual group names, member DNs
     # if BB onboarding
