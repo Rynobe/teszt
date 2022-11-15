@@ -1,5 +1,3 @@
-#!/usr/bin/env groovy
-
 pipeline {
     environment {
         OTP_CDO_DATETIME = "${new Date().format("yyyyMMddHHmm")}"
@@ -96,6 +94,14 @@ pipeline {
             steps {
                 git branch: 'main', url: 'https://github.com/Rynobe/teszt.git'
                 sh 'python3 generate_ad.py' + """ ${params.PROJECT}"""
+            }
+        }
+        stage('Test'){
+            steps {
+                echo "${params.Bitbucket}"
+                echo "${params.Nexus}"
+                echo "${params.Jenkins}"
+                echo "${params.SonarQube}"
             }
         }
     }
