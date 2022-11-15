@@ -87,21 +87,10 @@ pipeline {
                     if(params.SonarQube_RW){
                         extraArgs.add("--sq_rw \"${params.SonarQube_RW}\"")
                     }
+                    
+                    git branch: 'main', url: 'https://github.com/Rynobe/teszt.git'
+                    sh 'python3 generate_ad.py' + """ ${extraArgs.join(' ')} ${params.PROJECT} """
                 }
-            }
-        }
-        stage('Test'){
-            steps {
-                echo "${params.Bitbucket}"
-                echo "${params.Nexus}"
-                echo "${params.Jenkins}"
-                echo "${params.SonarQube}"
-            }
-        }
-        stage('Build'){
-            steps {
-                git branch: 'main', url: 'https://github.com/Rynobe/teszt.git'
-                sh 'python3 generate_ad.py' + """ ${params.PROJECT}"""
             }
         }
     }
