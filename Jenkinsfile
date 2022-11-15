@@ -27,7 +27,7 @@ pipeline {
                 checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Rynobe/teszt.git']]])
             }
         }
-stage("Generating AD objects for onboarding") {
+        stage("Generating AD objects for onboarding") {
             steps {
                 script{
                     def extraArgs = []
