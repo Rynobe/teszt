@@ -125,7 +125,7 @@ def main():
         sys.exit(1)
 
     AD_ENV['corp']['connection'] = ActiveDirectory(adusername,adpassword,AD_ENV['corp']['server'],AD_ENV['corp']['port'],AD_ENV['corp']['searchBases'], AD_ENV['corp']['extraFilterForUsers'], logger)
-    prepare_OUs_and_groups("corp",project_name,Apps.Bitbucket)
+    prepare_OUs_and_groups("corp",project_name,Apps.SonarQube)
 
 def prepare_OUs_and_groups(forDomain, project_name, app):
     createUniversalGroups = False
