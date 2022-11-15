@@ -1,14 +1,15 @@
 from ldap3 import Connection, Server, SUBTREE, ALL 
 from ldap3.extend.microsoft.addMembersToGroups import ad_add_members_to_groups as addADUsersToGroup
-from ldap3.core.exceptions import LDAPException, LDAPBindError, LDAPEntryAlreadyExistsResult
+from ldap3.core.exceptions import LDAPException, LDAPEntryAlreadyExistsResult
 import sys
 
 
 class ActiveDirectory:
 
-    def __init__(self, user, password, server, port, searchBases):
+    def __init__(self, user, password, server, port, searchBases, extraFilterForUsers,logger):
+        self.logger = logger
         self.searchBases = searchBases
-        """
+        
         if "OURelativeSearch" in searchBases.keys():
             if searchBases["OURelativeSearch"]:
                 self.searchBases["OUSearchBase"] = searchBases["OURelativeSearch"]+","+searchBases["SearchRoot"]
@@ -22,27 +23,23 @@ class ActiveDirectory:
         if "GroupRelativeSearch" in searchBases.keys():
             if searchBases["GroupRelativeSearch"]:
                 self.searchBases["GroupSearchBase"] = searchBases["GroupRelativeSearch"]+","+searchBases["SearchRoot"]
-
         if extraFilterForUsers:
             self.extraFilterForUsers = extraFilterForUsers
-        """
+        
         try:
             # Provide the hostname and port number of the openLDAP
             server_uri = f'{server}:{port}'
             server = Server(server_uri, get_info=ALL)
             # username and password can be configured during openldap setup
             self.connection = Connection(server, auto_bind=True, user="{}\\{}".format('corp', user), password=password)
-          #  return connection
-
-        except LDAPBindError as e:
-            self.connection = e
+        except Exception as e:
+            self.logger.error(f'Error connecting to AD ({server}:{port})! Details: {repr(e)}')
+            raise BrokenPipeError(f'Error connecting to AD ({server}:{port})! Details: {repr(e)}')
 
     def getGroupDN(self, groupName, searchBase=None):
         # if not searchBase:
         #    searchBase = self.searchBases["GroupSearchBase"]
-        #groupName="DevOps"
-        searchBase = self.searchBases["SearchRoot"] # wont has
-        entry_list = self.connection.extend.standard.paged_search(search_base = searchBase,
+        entry_list = self.connection.extend.standard.paged_search(search_base = self.searchBases["SearchRoot"],
                                                 search_scope = SUBTREE,
                                                 search_filter = '(&(sAMAccountName='+groupName+')(objectClass=group))',
                                                 attributes = ['sAMAccountName', 'distinguishedName'],
@@ -50,13 +47,11 @@ class ActiveDirectory:
                                                 generator=False)
         entry_list = [ x for x in entry_list if x['type'] == "searchResEntry"]
         if len(entry_list) == 0:
-            #self.logger.debug("Group not found: "+groupName)
-            print("Nincs ilyen csoport!")
-            #return None
+            self.logger.debug("Group not found: "+groupName)
+            return None
         else:
-            print("Van ilyen csoport!",entry_list[0]['dn'])
-            #self.logger.debug("Group found! DN: "+entry_list[0]['dn'])
-            #return entry_list[0]['dn']
+            self.logger.debug("Group found! DN: "+entry_list[0]['dn'])
+            return entry_list[0]['dn']
 
     def getUserDN(self, username):
         searchFilter = '(&(sAMAccountName='+username+')(objectClass=person))'
@@ -70,28 +65,26 @@ class ActiveDirectory:
                                                 generator=False)
         entry_list = [ x for x in entry_list if x['type'] == "searchResEntry"]
         if len(entry_list) == 0:
-            #self.logger.debug("User not found or the user account is disabled/locked: "+username)
-            print("Nincs ilyen User!")
-            #return None
+            self.logger.debug("User not found or the user account is disabled/locked: "+username)
+            return None
         else:
-            print("Van ilyen User!",entry_list[0]['dn'])
-            #self.logger.debug("User found! DN:"+entry_list[0]['dn'])
-            #return entry_list[0]['dn']
+            self.logger.debug("User found! DN:"+entry_list[0]['dn'])
+            return entry_list[0]['dn']
 
     def createOU(self, OUname, path, failIfExists=False):
         newOUDN = f'OU={OUname},{path}'
         try:
-            #self.logger.debug(f'Creating OU: {newOUDN}')
+            self.logger.debug(f'Creating OU: {newOUDN}')
             self.connection.add(newOUDN, "organizationalUnit")
-            #self.logger.debug(f'  Successfully created OU: {newOUDN}')
+            self.logger.debug(f'  Successfully created OU: {newOUDN}')
             return newOUDN
         except LDAPEntryAlreadyExistsResult as e:
-            #self.logger.debug(f'  OU already exists: {newOUDN}')
+            self.logger.debug(f'  OU already exists: {newOUDN}')
             if failIfExists:
                 raise BrokenPipeError(f'  OU already exists: {newOUDN}')
             return newOUDN
         except LDAPException as e:
-            #self.logger.error(f'  Unexpected error occured during the Active Directory operation. Details: {repr(e)}')
+            self.logger.error(f'  Unexpected error occured during the Active Directory operation. Details: {repr(e)}')
             raise e
     
     def createGroup(self, groupName, path, universalGroup=False, failIfExists=False):
@@ -101,16 +94,16 @@ class ActiveDirectory:
         else:
             groupType = "-2147483646"
         try:
-            #self.logger.debug(f'Creating group: {groupName}')
+            self.logger.debug(f'Creating group: {groupName}')
             print(f'Creating group: {groupName}')
             self.connection.add(newGroupDN,"group",{"sAMAccountName":groupName, "displayName": groupName, "groupType": groupType})
-            #self.logger.debug(f'  Successfully created group: {newGroupDN}')
+            self.logger.debug(f'  Successfully created group: {newGroupDN}')
             print(f'  Successfully created group: {newGroupDN}')
             return newGroupDN
         except LDAPEntryAlreadyExistsResult as e:
             existingGroupDN = self.getGroupDN(groupName, self.searchBases["SearchRoot"])
             print(f'Group already exists: {existingGroupDN}')
-            #self.logger.debug(f'  Group already exists: {existingGroupDN}')
+            self.logger.debug(f'  Group already exists: {existingGroupDN}')
             if existingGroupDN != newGroupDN:
                 self.logger.error("  A group with the same name (sAMAccountName attr.) exists in self, but at a different path. Exiting!")
                 raise e
@@ -118,7 +111,7 @@ class ActiveDirectory:
                 sys.exit(1)
             return newGroupDN
         except LDAPException as e:
-            #self.logger.error(f'  Unexpected error occured during the Active Directory operation. Details: {repr(e)}')
+            self.logger.error(f'  Unexpected error occured during the Active Directory operation. Details: {repr(e)}')
             print(f'  Unexpected error occured during the Active Directory operation. Details: {repr(e)}')
             raise e
 """
