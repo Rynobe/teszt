@@ -79,6 +79,7 @@ def main():
     try:
         project_name = args.project_identifier
         logger.info(f'Project to be onboarded: {project_name}')
+        """
         users_to_validate = []
 
         bb_ro = get_parsed_users_by_domain(args.bb_ro, f"{Apps.Bitbucket.value}-RO")
@@ -123,9 +124,37 @@ def main():
     except Exception as e:
         logger.error(f'Error when parsing inputs. Details: {repr(e)}')
         sys.exit(1)
-
+    """
     AD_ENV['corp']['connection'] = ActiveDirectory(adusername,adpassword,AD_ENV['corp']['server'],AD_ENV['corp']['port'],AD_ENV['corp']['searchBases'], AD_ENV['corp']['extraFilterForUsers'], logger)
-    prepare_OUs_and_groups("corp",project_name,Apps.SonarQube)
+    
+    # prepare and generate actual group names, member DNs
+    # if BB onboarding
+    if args.bitbucket:
+        logger.info(f"Started the onboarding of this project ({project_name}) for {Apps.Bitbucket.value}!")
+        prepare_OUs_and_groups("corp", project_name, Apps.Bitbucket)
+    else:
+        logger.debug(f"Not onboarding this project ({project_name}) for {Apps.Bitbucket.value}!")
+        
+    # if Jenkins onboarding
+    if args.jenkins:
+        logger.info(f"Started the onboarding of this project ({project_name}) for {Apps.Jenkins.value}!")
+        prepare_OUs_and_groups("corp", project_name, Apps.Jenkins)
+    else:
+        logger.debug(f"Not onboarding this project ({project_name}) for {Apps.Jenkins.value}!")
+    
+    # if Nexus onboarding
+    if args.nexus:
+        logger.info(f"Started the onboarding of this project ({project_name}) for {Apps.Nexus.value}!")
+        prepare_OUs_and_groups("corp", project_name, Apps.Nexus)
+    else:
+        logger.debug(f"Not onboarding this project ({project_name}) for {Apps.Nexus.value}!")
+    
+    # if SQ onboarding
+    if args.sonarqube:
+        logger.info(f"Started the onboarding of this project ({project_name}) for {Apps.SonarQube.value}!")
+        prepare_OUs_and_groups("corp", project_name, Apps.SonarQube)
+    else:
+        logger.debug(f"Not onboarding this project ({project_name}) for {Apps.SonarQube.value}!")
 
 def prepare_OUs_and_groups(forDomain, project_name, app):
     createUniversalGroups = False
