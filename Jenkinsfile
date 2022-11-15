@@ -95,7 +95,9 @@ pipeline {
         stage('Build'){
             steps {
                 git branch: 'main', url: 'https://github.com/Rynobe/teszt.git'
-                sh 'python3 generate_ad.py' + """ ${extraArgs.join(' ')} ${params.PROJECT}"""
+                sh 'python3 generate_ad.py' + """ \
+                    ${extraArgs.join(' ')} \
+                    ${params.PROJECT}"""
             }
         }
     }
