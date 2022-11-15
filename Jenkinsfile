@@ -33,6 +33,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Rynobe/teszt.git']]])
+                git branch: 'main', url: 'https://github.com/Rynobe/teszt.git'
             }
         }
         stage("Generating AD objects for onboarding") {
@@ -88,7 +89,6 @@ pipeline {
                         extraArgs.add("--sq_rw \"${params.SonarQube_RW}\"")
                     }
                     
-                    git branch: 'main', url: 'https://github.com/Rynobe/teszt.git'
                     sh 'python3 generate_ad.py' + """ ${extraArgs.join(' ')} ${params.PROJECT} """
                 }
             }
