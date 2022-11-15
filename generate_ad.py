@@ -45,7 +45,7 @@ ActualGroupsAndMembers = {
 }
 
 parser = argparse.ArgumentParser(description='AD object generation for onboarding script parameters.')
-#parser.add_argument('project_identifier', type=str, help='The unique identifier based on the current naming convention for the project to be onboarded.')
+parser.add_argument('project_identifier', type=str, help='The unique identifier based on the current naming convention for the project to be onboarded.')
 parser.add_argument('--bitbucket', action='store_true', help=f'Run this onboarding process for this project for the {Apps.Bitbucket.value} application. At least one application is required.')
 parser.add_argument('--jenkins', action='store_true', help=f'Run this onboarding process for this project for the {Apps.Jenkins.value} application. At least one application is required.')
 parser.add_argument('--nexus', action='store_true', help=f'Run this onboarding process for this project for the {Apps.Nexus.value} application. At least one application is required.')
@@ -64,13 +64,11 @@ parser.add_argument('--n_rws', type=str, help=f'Comma separated list of users to
 parser.add_argument('--n_rwr', type=str, help=f'Comma separated list of users to be added to the project-specific {Apps.Nexus.value}-RW-RELEASE group during onboarding. Format: kozpont\otp-cdo-ro,irfi\otp-cdo-ro1,corp\otp-cdo-rw')
 
 args = parser.parse_args()
-"""
 if not args.bitbucket and not args.jenkins and not args.nexus and not args.sonarqube:
     parser.error('At least one application is required (--bitbucket | --jenkins | --nexus | --sonarqube)')
 else:
     if not args.project_identifier:
         parser.error('A project_identifier must be given.')
-"""
 
 def main():
     # setup logging
@@ -79,8 +77,7 @@ def main():
 
     # Parse inputs
     try:
-        #project_name = args.project_identifier
-        project_name = "otp-erfuk"
+        project_name = args.project_identifier
         logger.info(f'Project to be onboarded: {project_name}')
         users_to_validate = []
 
