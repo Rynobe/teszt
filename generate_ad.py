@@ -79,7 +79,6 @@ def main():
     try:
         project_name = args.project_identifier
         logger.info(f'Project to be onboarded: {project_name}')
-        """
         users_to_validate = []
 
         bb_ro = get_parsed_users_by_domain(args.bb_ro, f"{Apps.Bitbucket.value}-RO")
@@ -124,7 +123,7 @@ def main():
     except Exception as e:
         logger.error(f'Error when parsing inputs. Details: {repr(e)}')
         sys.exit(1)
-    """
+
     AD_ENV['corp']['connection'] = ActiveDirectory(adusername,adpassword,AD_ENV['corp']['server'],AD_ENV['corp']['port'],AD_ENV['corp']['searchBases'], AD_ENV['corp']['extraFilterForUsers'], logger)
     
     # prepare and generate actual group names, member DNs
