@@ -98,11 +98,5 @@ pipeline {
                 sh 'python3 generate_ad.py' + """ ${extraArgs.join(' ')} ${params.PROJECT}"""
             }
         }
-        stage('Test') {
-            steps {
-                echo "${params.Jenkins_ADM}"
-                echo "${params.PROJECT}"
-            }
-        }
     }
 }
