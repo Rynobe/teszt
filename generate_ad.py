@@ -136,7 +136,7 @@ def main():
     
     # validate userfilter groups per AD
     for domain in AD_ENV:
-        logger.info(f'Validating user filter groups for {domain.upper()} AD.')
+        logger.debug(f'Validating user filter groups for {domain.upper()} AD.')
         invalid_userfilter_groups[domain] = validate_userfilter_groups(AD_ENV[domain])
     
     if len(invalid_userfilter_groups['corp'])!=0:
@@ -145,7 +145,18 @@ def main():
             logger.error(f'These user filter groups were not found for {domain.upper()} AD: [{tmp}]')
         logger.error("There were user filter group validation errors, exiting. Details above.")
         sys.exit(1)
-    logger.info(f'Successfully validated all specified user filter groups for all ADs.')
+    logger.info(f'Successfully validated all specified user filter groups for CORP AD.')
+    
+    # validate users
+    logger.info(f'Validating the specified AD users.')
+    invalid_ad_users = validate_user_lists_per_domain(users_to_validate)
+    if len(invalid_ad_users['corp'])!=0:
+        for domain in invalid_ad_users:
+            tmp = ','.join(invalid_ad_users[domain])
+            logger.error(f'Users not found in {domain.upper()} AD: [{tmp}]')
+        logger.error("There were user validation errors, exiting. Details above.")
+        sys.exit(1)
+    logger.info(f'Successfully validated all the specified AD users.')
     
     # preparing root OUs for domains
     for domain in AD_ENV:
@@ -221,9 +232,9 @@ def setup_custom_logger(name):
     return logger
 
 def get_parsed_users_by_domain(user_list, app_descr):
-    logger.debug(f'Parsing {app_descr} users.')
+    logger.info(f'Parsing {app_descr} users.')
     if not user_list:
-        logger.debug('  No users for this group.')
+        logger.info('  No users for this group.')
         return None
     users = user_list.split(',')
     users = [user.strip() for user in users if user.strip()]
@@ -272,7 +283,16 @@ def validate_userfilter_groups(AD):
             invalid_groups.append(f'{g["domain"]}\{g["name"]}')
     return invalid_groups
     
-    
+def validate_user_lists_per_domain(user_lists):
+    invalid_ad_users = {'corp':[]}
+    for user_list in user_lists:
+        for domain in user_list:
+            for user in user_list[domain]:
+                conn = AD_ENV[domain]["connection"]
+                if not conn.getUserDN(user):
+                    invalid_ad_users[domain].append(user)
+    return invalid_ad_users  
+
 main()
 """
 
