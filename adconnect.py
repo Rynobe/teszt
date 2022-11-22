@@ -114,6 +114,28 @@ class ActiveDirectory:
             self.logger.error(f'  Unexpected error occured during the Active Directory operation. Details: {repr(e)}')
             print(f'  Unexpected error occured during the Active Directory operation. Details: {repr(e)}')
             raise e
+            
+    def addUsersToGroup(self, userList, groupName):
+        if len(userList)!=0:
+            self.logger.debug(f'Starting group member processing for group: {groupName}.')
+            groupDN = self.getGroupDN(groupName, self.searchBases["GroupSearchBase"])
+            if not groupDN:
+                self.logger.error(f' Group not found: {groupName}.')
+                raise BrokenPipeError()
+            userDNList = []
+            for user in userList:
+                userDN = self.getUserDN(user)
+                if userDN:
+                    userDNList.append(userDN)
+            if len(userDNList)!=0:
+                self.logger.info(f'  Making sure these users ({userList}) are members of this group ({groupName}).')
+                try:
+                    addADUsersToGroup(self.connection, userDNList, [groupDN], fix=True, raise_error=True)
+                    self.logger.debug(f'  Now these users ({userDNList}) are members of this group ({groupDN}).')
+                except Exception as e:
+                    self.logger.error(f'  Unexpected error occured during the Active Directory operation. Details: {repr(e)}')
+            self.logger.debug(f'Successfully finished group member processing for group: {groupName}.')
+            
 """
         
         search_base = 'DC=corp,DC=hu'
