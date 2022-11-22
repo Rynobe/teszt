@@ -171,13 +171,13 @@ def main():
         prepare_OUs_and_groups("corp", project_name, Apps.Bitbucket)
         if bb_ro:
             set_group_memberships_per_domain(bb_ro, "BB_{0}-ro".format(project_name))
-            set_userfilter_memberships_per_domain(bb_ro, Apps.Bitbucket)
+            #set_userfilter_memberships_per_domain(bb_ro, Apps.Bitbucket)
         if bb_rw:
             set_group_memberships_per_domain(bb_rw, "BB_{0}-rw".format(project_name))
-            set_userfilter_memberships_per_domain(bb_rw, Apps.Bitbucket)
+            #set_userfilter_memberships_per_domain(bb_rw, Apps.Bitbucket)
         if bb_adm:
             set_group_memberships_per_domain(bb_adm, "BB_{0}-adm".format(project_name))
-            set_userfilter_memberships_per_domain(bb_adm, Apps.Bitbucket)
+            #set_userfilter_memberships_per_domain(bb_adm, Apps.Bitbucket)
     else:
         logger.debug(f"Not onboarding this project ({project_name}) for {Apps.Bitbucket.value}!")
         
