@@ -134,6 +134,12 @@ def main():
         #AD_ENVS[domain]['connection'] = ActiveDirectory(username, pw, AD_ENVS[domain]['host'], AD_ENVS[domain]['port'], AD_ENVS[domain]['SSL'], AD_ENVS[domain]['searchBases'], AD_ENVS[domain]['extraFilterForUsers'], logger)
         logger.debug(f'Connection successful to {domain.upper()} AD.')
     
+    # preparing root OUs for domains
+    for domain in AD_ENV:
+        logger.info(f'Starting root application OU preparation for {domain.upper()} AD.')
+        prepare_root_OUs(domain)
+        logger.info(f'Finished root application OU preparation for {domain.upper()} AD.')
+    
     # prepare and generate actual group names, member DNs
     # if BB onboarding
     if args.bitbucket:
@@ -208,27 +214,33 @@ def get_parsed_users_by_domain(user_list, app_descr):
         return None
     users = user_list.split(',')
     users = [user.strip() for user in users if user.strip()]
-    kozpont_users = []
-    irfi_users = []
     corp_users = []
     invalid_users = []
     for u in users:
-        if u.lower().startswith("kozpont\\") or u.lower().startswith("kozpont/"):
-            kozpont_users.append(remove_domain_prefix(u, "kozpont"))
-        elif u.lower().startswith("irfi\\") or u.lower().startswith("irfi/"):
-            irfi_users.append(remove_domain_prefix(u, "irfi"))
-        elif u.lower().startswith("corp\\") or u.lower().startswith("corp/"):
+        if u.lower().startswith("corp\\") or u.lower().startswith("corp/"):
             corp_users.append(remove_domain_prefix(u, "corp"))
         else:
             invalid_users.append(u)
     if len(invalid_users) != 0:
         raise BrokenPipeError(f"Error parsing user list: [{user_list}]. These user's domain prefix are not correct: {invalid_users}")
-    logger.info(f'  Parsed {app_descr} users : KOZPONT: {kozpont_users}, IRFI: {irfi_users}, CORP: {corp_users}')
-    return {'kozpont': kozpont_users, 'irfi': irfi_users, 'corp': corp_users}
+    logger.info(f'  Parsed {app_descr} users : CORP: {corp_users}')
+    return {'corp': corp_users}
 
 def remove_domain_prefix(str, prefix):
     if str.startswith(prefix):
         return str[len(prefix)+1:]
+    
+def prepare_root_OUs(domain):
+    conn = AD_ENV[domain]["connection"]
+    #create or get app OU
+    logger.info(f'Ensuring the root {Apps.Bitbucket.value} OU exists')
+    conn.createOU(Apps.Bitbucket.value, conn.searchBases['OUSearchBase'])
+    logger.info(f'Ensuring the root {Apps.Jenkins.value} OU exists')
+    conn.createOU(Apps.Jenkins.value, conn.searchBases['OUSearchBase'])
+    logger.info(f'Ensuring the root {Apps.Nexus.value} OU exists')
+    conn.createOU(Apps.Nexus.value, conn.searchBases['OUSearchBase'])
+    logger.info(f'Ensuring the root {Apps.SonarQube.value} OU exists')
+    conn.createOU(Apps.SonarQube.value, conn.searchBases['OUSearchBase'])
 
 main()
 """
