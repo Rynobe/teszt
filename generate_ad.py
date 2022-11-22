@@ -134,11 +134,24 @@ def main():
         #AD_ENVS[domain]['connection'] = ActiveDirectory(username, pw, AD_ENVS[domain]['host'], AD_ENVS[domain]['port'], AD_ENVS[domain]['SSL'], AD_ENVS[domain]['searchBases'], AD_ENVS[domain]['extraFilterForUsers'], logger)
         logger.debug(f'Connection successful to {domain.upper()} AD.')
     
+    # validate userfilter groups per AD
+    for domain in AD_ENV:
+        logger.info(f'Validating user filter groups for {domain.upper()} AD.')
+        invalid_userfilter_groups[domain] = validate_userfilter_groups(AD_ENV[domain])
+    
+    if len(invalid_userfilter_groups['corp'])!=0:
+        for domain in invalid_userfilter_groups:
+            tmp = ','.join(invalid_userfilter_groups[domain])
+            logger.error(f'These user filter groups were not found for {domain.upper()} AD: [{tmp}]')
+        logger.error("There were user filter group validation errors, exiting. Details above.")
+        sys.exit(1)
+    logger.info(f'Successfully validated all specified user filter groups for all ADs.')
+    
     # preparing root OUs for domains
     for domain in AD_ENV:
-        logger.info(f'Starting root application OU preparation for {domain.upper()} AD.')
+        logger.debug(f'Starting root application OU preparation for {domain.upper()} AD.')
         prepare_root_OUs(domain)
-        logger.info(f'Finished root application OU preparation for {domain.upper()} AD.')
+        logger.debug(f'Finished root application OU preparation for {domain.upper()} AD.') 
     
     # prepare and generate actual group names, member DNs
     # if BB onboarding
@@ -233,15 +246,33 @@ def remove_domain_prefix(str, prefix):
 def prepare_root_OUs(domain):
     conn = AD_ENV[domain]["connection"]
     #create or get app OU
-    logger.info(f'Ensuring the root {Apps.Bitbucket.value} OU exists')
+    logger.debug(f'Ensuring the root {Apps.Bitbucket.value} OU exists')
     conn.createOU(Apps.Bitbucket.value, conn.searchBases['OUSearchBase'])
-    logger.info(f'Ensuring the root {Apps.Jenkins.value} OU exists')
+    logger.debug(f'Ensuring the root {Apps.Jenkins.value} OU exists')
     conn.createOU(Apps.Jenkins.value, conn.searchBases['OUSearchBase'])
-    logger.info(f'Ensuring the root {Apps.Nexus.value} OU exists')
+    logger.debug(f'Ensuring the root {Apps.Nexus.value} OU exists')
     conn.createOU(Apps.Nexus.value, conn.searchBases['OUSearchBase'])
-    logger.info(f'Ensuring the root {Apps.SonarQube.value} OU exists')
+    logger.debug(f'Ensuring the root {Apps.SonarQube.value} OU exists')
     conn.createOU(Apps.SonarQube.value, conn.searchBases['OUSearchBase'])
 
+def validate_userfilter_groups(AD):
+    conn = AD["connection"]
+    invalid_groups = []
+    for app in AD["userFilterGroups"]:
+        g = AD["userFilterGroups"][app]
+        # if the userfilter group is located in another AD
+        if "domain" in g.keys():
+            if g["domain"]:
+                logger.info(f'User filter group ({g["name"]}) is located in a different AD: {g["domain"].upper()}!')
+                conn2 = AD_ENV[g["domain"]]["connection"]
+                if not conn2.getGroupDN(g["name"]):
+                    invalid_groups.append(f'{g["domain"]}\{g["name"]}')
+                continue
+        if not conn.getGroupDN(g["name"]):
+            invalid_groups.append(f'{g["domain"]}\{g["name"]}')
+    return invalid_groups
+    
+    
 main()
 """
 
