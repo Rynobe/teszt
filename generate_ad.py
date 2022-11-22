@@ -307,6 +307,7 @@ def set_group_memberships_per_domain(username_list, groupName):
         current_group_name = AD_ENV[domain]['groupPrefix'] + groupName
         logger.info(f'Starting group membership processing for group: {domain}\{current_group_name}')
         current_user_list = username_list[domain]
+        logger.info(f'Current user list: {current_user_list} and group: {current_group_name}')
         AD_ENV[domain]["connection"].addUsersToGroup(current_user_list, current_group_name)
         logger.info(f'Finished group membership processing for group: {domain}\{current_group_name}')
 
