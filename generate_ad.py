@@ -169,6 +169,15 @@ def main():
     if args.bitbucket:
         logger.info(f"Started the onboarding of this project ({project_name}) for {Apps.Bitbucket.value}!")
         prepare_OUs_and_groups("corp", project_name, Apps.Bitbucket)
+        if bb_ro:
+            set_group_memberships_per_domain(bb_ro, "BB_{0}-ro".format(project_name))
+            set_userfilter_memberships_per_domain(bb_ro, Apps.Bitbucket)
+        if bb_rw:
+            set_group_memberships_per_domain(bb_rw, "BB_{0}-rw".format(project_name))
+            set_userfilter_memberships_per_domain(bb_rw, Apps.Bitbucket)
+        if bb_adm:
+            set_group_memberships_per_domain(bb_adm, "BB_{0}-adm".format(project_name))
+            set_userfilter_memberships_per_domain(bb_adm, Apps.Bitbucket)
     else:
         logger.debug(f"Not onboarding this project ({project_name}) for {Apps.Bitbucket.value}!")
         
@@ -293,6 +302,31 @@ def validate_user_lists_per_domain(user_lists):
                     invalid_ad_users[domain].append(user)
     return invalid_ad_users  
 
+def set_group_memberships_per_domain(username_list, groupName):
+    for domain in AD_ENV:
+        current_group_name = AD_ENV[domain]['groupPrefix'] + groupName
+        logger.info(f'Starting group membership processing for group: {domain}\{current_group_name}')
+        current_user_list = username_list[domain]
+        AD_ENV[domain]["connection"].addUsersToGroup(current_user_list, current_group_name)
+        logger.info(f'Finished group membership processing for group: {domain}\{current_group_name}')
+
+def set_userfilter_memberships_per_domain(username_list, app):
+    for domain in username_list:
+        conn = AD_ENV[domain]["connection"]
+        if app in AD_ENV[domain]["userFilterGroups"].keys():
+            g = AD_ENV[domain]["userFilterGroups"][app]
+            logger.info(f'Starting user filter group membership processing for {domain.upper()} AD, current group: {g["name"]}')
+            # if the userfilter group is located in another AD
+            if "domain" in g.keys():
+                if g["domain"]:
+                    logger.debug(f'User filter group ({g["name"]}) is located in a different AD: {g["domain"].upper()}!')
+                    conn = AD_ENV[g["domain"]]["connection"]
+                    conn.addUsersToGroup(username_list[domain], g["name"])
+                    logger.info(f'Finished user filter group membership processing for {domain.upper()} AD, actual used group: {g["domain"].upper()}\{g["name"]}')
+                    continue
+            conn.addUsersToGroup(username_list[domain], g["name"])
+            logger.info(f'Finished user filter group membership processing for {domain.upper()} AD, current group: {g["name"]}') 
+       
 main()
 """
 
