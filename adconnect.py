@@ -18,8 +18,6 @@ class ActiveDirectory:
         if "UserRelativeSearch" in searchBases.keys():
             if searchBases["UserRelativeSearch"]:
                 self.searchBases["UserSearchBase"] = searchBases["UserRelativeSearch"]+","+searchBases["SearchRoot"]
-            self.logger.info(" " + self.searchBases["UserSearchBase"])
-            self.logger.info(" " + self.searchBases["SearchRoot"])
 
         self.searchBases["GroupSearchBase"] = searchBases["SearchRoot"]
         if "GroupRelativeSearch" in searchBases.keys():
@@ -39,9 +37,9 @@ class ActiveDirectory:
             raise BrokenPipeError(f'Error connecting to AD ({server}:{port})! Details: {repr(e)}')
 
     def getGroupDN(self, groupName, searchBase=None):
-        # if not searchBase:
-        #    searchBase = self.searchBases["GroupSearchBase"]
-        entry_list = self.connection.extend.standard.paged_search(search_base = self.searchBases["SearchRoot"],
+        if not searchBase:
+            searchBase = self.searchBases["GroupSearchBase"]
+        entry_list = self.connection.extend.standard.paged_search(search_base = searchBase,
                                                 search_scope = SUBTREE,
                                                 search_filter = '(&(sAMAccountName='+groupName+')(objectClass=group))',
                                                 attributes = ['sAMAccountName', 'distinguishedName'],
