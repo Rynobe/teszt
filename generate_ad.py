@@ -35,9 +35,9 @@ AD_ENV = {
 
 AppGroupNames = {
     Apps.Jenkins: ["J_{0}-adm", "J_{0}-dev", "J_{0}-ops", "J_{0}-qa"],
-    Apps.Bitbucket: ["BB_{0}-ro", "BB_{0}-rw", "BB_{0}-admin"],
+    Apps.Bitbucket: ["BB_{0}-ro", "BB_{0}-rw", "BB_{0}-adm"],
     Apps.Nexus: ["N_{0}-ro", "N_{0}-rw-s", "N_{0}-rw-r"],
-    Apps.SonarQube: ["SQ_{0}-ro", "SQ_{0}-rw", "SQ_{0}-admin"]
+    Apps.SonarQube: ["SQ_{0}-ro", "SQ_{0}-rw", "SQ_{0}-adm"]
 }
 
 ActualGroupsAndMembers = {
