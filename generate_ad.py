@@ -208,7 +208,7 @@ def prepare_OUs_and_groups(forDomain, project_name, app):
     
     #create or get app OU
     logger.info(f'Making sure the root {app.value} OU exists')
-    baseAppOU = conn.createOU(app.value, conn.searchBases['SearchRoot'])
+    baseAppOU = conn.createOU(app.value, conn.searchBases['OUSearchBase'])
     #create project OU
     logger.info(f'Started creating the PR_{project_name} OU inside of the {app.value} OU')    
     projectOU = conn.createOU(f'PR_{project_name}', baseAppOU)
