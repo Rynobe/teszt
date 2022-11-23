@@ -18,6 +18,9 @@ class ActiveDirectory:
         if "UserRelativeSearch" in searchBases.keys():
             if searchBases["UserRelativeSearch"]:
                 self.searchBases["UserSearchBase"] = searchBases["UserRelativeSearch"]+","+searchBases["SearchRoot"]
+                self.logger.info(" " + searchBases["UserSearchBase"])
+                self.logger.info(" " + searchBases["UserRelativeSearch"])
+                self.logger.info(" " + searchBases["SearchRoot"])
 
         self.searchBases["GroupSearchBase"] = searchBases["SearchRoot"]
         if "GroupRelativeSearch" in searchBases.keys():
@@ -57,9 +60,9 @@ class ActiveDirectory:
         searchFilter = '(&(sAMAccountName='+username+')(objectClass=person))'
         if self.extraFilterForUsers:
             searchFilter = '(&'+searchFilter+self.extraFilterForUsers+')'
-        self.logger.info(" " + self.searchBases["UserSearchBase"])
-        self.logger.info(" " + self.searchBases['SearchRoot'])
-        entry_list = self.connection.extend.standard.paged_search(search_base = self.searchBases["UserSearchBase"],
+        self.logger.info(" " + searchBases["UserSearchBase"])
+        self.logger.info(" " + searchBases['SearchRoot'])
+        entry_list = self.connection.extend.standard.paged_search(search_base = searchBases["UserSearchBase"],
                                                 search_filter = searchFilter,
                                                 search_scope = SUBTREE,
                                                 attributes = ['sAMAccountName', 'distinguishedName'],
