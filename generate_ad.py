@@ -171,13 +171,13 @@ def main():
         prepare_OUs_and_groups("corp", project_name, Apps.Bitbucket)
         if bb_ro:
             set_group_memberships_per_domain(bb_ro, "BB_{0}-ro".format(project_name))
-            #set_userfilter_memberships_per_domain(bb_ro, Apps.Bitbucket)
+            set_userfilter_memberships_per_domain(bb_ro, Apps.Bitbucket)
         if bb_rw:
             set_group_memberships_per_domain(bb_rw, "BB_{0}-rw".format(project_name))
-            #set_userfilter_memberships_per_domain(bb_rw, Apps.Bitbucket)
+            set_userfilter_memberships_per_domain(bb_rw, Apps.Bitbucket)
         if bb_adm:
             set_group_memberships_per_domain(bb_adm, "BB_{0}-adm".format(project_name))
-            #set_userfilter_memberships_per_domain(bb_adm, Apps.Bitbucket)
+            set_userfilter_memberships_per_domain(bb_adm, Apps.Bitbucket)
     else:
         logger.debug(f"Not onboarding this project ({project_name}) for {Apps.Bitbucket.value}!")
         
@@ -185,6 +185,18 @@ def main():
     if args.jenkins:
         logger.info(f"Started the onboarding of this project ({project_name}) for {Apps.Jenkins.value}!")
         prepare_OUs_and_groups("corp", project_name, Apps.Jenkins)
+        if j_dev:
+            set_group_memberships_per_domain(j_dev, "J_{0}-dev".format(project_name))
+            set_userfilter_memberships_per_domain(j_dev, Apps.Jenkins)
+        if j_ops:
+            set_group_memberships_per_domain(j_ops, "J_{0}-ops".format(project_name))
+            set_userfilter_memberships_per_domain(j_ops, Apps.Jenkins)
+        if j_qa:
+            set_group_memberships_per_domain(j_qa, "J_{0}-qa".format(project_name))
+            set_userfilter_memberships_per_domain(j_qa, Apps.Jenkins)
+        if j_adm:
+            set_group_memberships_per_domain(j_adm, "J_{0}-adm".format(project_name))
+            set_userfilter_memberships_per_domain(j_adm, Apps.Jenkins)
     else:
         logger.debug(f"Not onboarding this project ({project_name}) for {Apps.Jenkins.value}!")
     
@@ -192,6 +204,15 @@ def main():
     if args.nexus:
         logger.info(f"Started the onboarding of this project ({project_name}) for {Apps.Nexus.value}!")
         prepare_OUs_and_groups("corp", project_name, Apps.Nexus)
+        if n_ro:
+            set_group_memberships_per_domain(n_ro, "N_{0}-ro".format(project_name))
+            set_userfilter_memberships_per_domain(n_ro, Apps.Nexus)
+        if n_rws:
+            set_group_memberships_per_domain(n_rws, "N_{0}-rw-s".format(project_name))
+            set_userfilter_memberships_per_domain(n_rws, Apps.Nexus)
+        if n_rwr:
+            set_group_memberships_per_domain(n_rwr, "N_{0}-rw-r".format(project_name))
+            set_userfilter_memberships_per_domain(n_rwr, Apps.Nexus)
     else:
         logger.debug(f"Not onboarding this project ({project_name}) for {Apps.Nexus.value}!")
     
@@ -199,6 +220,12 @@ def main():
     if args.sonarqube:
         logger.info(f"Started the onboarding of this project ({project_name}) for {Apps.SonarQube.value}!")
         prepare_OUs_and_groups("corp", project_name, Apps.SonarQube)
+        if sq_ro:
+            set_group_memberships_per_domain(sq_ro, "SQ_{0}-ro".format(project_name))
+            set_userfilter_memberships_per_domain(sq_ro, Apps.SonarQube)
+        if sq_rw:
+            set_group_memberships_per_domain(sq_rw, "SQ_{0}-rw".format(project_name))
+            set_userfilter_memberships_per_domain(sq_rw, Apps.SonarQube)
     else:
         logger.debug(f"Not onboarding this project ({project_name}) for {Apps.SonarQube.value}!")
 
