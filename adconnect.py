@@ -55,9 +55,9 @@ class ActiveDirectory:
 
     def getUserDN(self, username):
         searchFilter = '(&(sAMAccountName='+username+')(objectClass=person))'
-#        if self.extraFilterForUsers:
- #           searchFilter = '(&'+searchFilter+self.extraFilterForUsers+')'
-        entry_list = self.connection.extend.standard.paged_search(search_base = 'DC=corp,DC=hu',
+        if self.extraFilterForUsers:
+            searchFilter = '(&'+searchFilter+self.extraFilterForUsers+')'
+        entry_list = self.connection.extend.standard.paged_search(search_base = self.searchBases["UserSearchBase"],
                                                 search_filter = searchFilter,
                                                 search_scope = SUBTREE,
                                                 attributes = ['sAMAccountName', 'distinguishedName'],
