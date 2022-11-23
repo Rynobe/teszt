@@ -18,9 +18,9 @@ class ActiveDirectory:
         if "UserRelativeSearch" in searchBases.keys():
             if searchBases["UserRelativeSearch"]:
                 self.searchBases["UserSearchBase"] = searchBases["UserRelativeSearch"]+","+searchBases["SearchRoot"]
-                self.logger.info(" " + self.searchBases["UserSearchBase"])
-                self.logger.info(" " + self.searchBases["UserRelativeSearch"])
-                self.logger.info(" " + self.searchBases["SearchRoot"])
+            self.logger.info(" " + self.searchBases["UserSearchBase"])
+            self.logger.info(" " + self.searchBases["UserRelativeSearch"])
+            self.logger.info(" " + self.searchBases["SearchRoot"])
 
         self.searchBases["GroupSearchBase"] = searchBases["SearchRoot"]
         if "GroupRelativeSearch" in searchBases.keys():
