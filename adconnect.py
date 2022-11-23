@@ -9,6 +9,7 @@ class ActiveDirectory:
     def __init__(self, user, password, server, port, searchBases, extraFilterForUsers,logger):
         self.logger = logger
         self.searchBases = searchBases
+        self.searchBases["OUSearchBase"] = searchBases["SearchRoot"]
         
         if "OURelativeSearch" in searchBases.keys():
             if searchBases["OURelativeSearch"]:
