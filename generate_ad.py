@@ -22,7 +22,7 @@ AD_ENV = {
         'server': 'LDAP://192.168.100.4',
         'searchBases':
         {
-            'SearchRoot' : 'OU=CORPUsers,OU=CentralDevOps,DC=CORP,DC=HU',
+            'SearchRoot' : 'DC=CORP,DC=HU',
             'OURelativeSearch' : 'OU=CORPUsers,OU=CentralDevOps',
             'UserRelativeSearch' : '',
             'GroupRelativeSearch' : 'OU=CORPUsers,OU=CentralDevOps'
