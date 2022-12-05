@@ -88,7 +88,7 @@ pipeline {
                         extraArgs.add("--sq_rw \"${params.SonarQube_RW}\"")
                     }
                     
-                    sh 'python generate_ad.py' + """ ${extraArgs.join(' ')} ${params.PROJECT} """
+                    sh ('python3 generate_ad.py' + """ ${extraArgs.join(' ')} ${params.PROJECT} """)
                 }
             }
         }
