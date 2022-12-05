@@ -1,3 +1,5 @@
+#/bin/bash
+
 import sys
 import argparse
 import os
